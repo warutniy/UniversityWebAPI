@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "QOEytNczgGfGD2kGmfLnbZqFpyjzpGme4YxQEE7oyMw=",
+  "Source": "UniversityWebAPI",
+  "BasePath": "_content/UniversityWebAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
