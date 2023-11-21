@@ -20,6 +20,12 @@ namespace UniversityWebAPI.Repository
             return Save();
         }
 
+        public bool DeleteUniversities(List<University> universities)
+        {
+            _context.Universities.RemoveRange(universities);
+            return Save();
+        }
+
         public bool DeleteUniversity(University university)
         {
             _context.Universities.Remove(university);

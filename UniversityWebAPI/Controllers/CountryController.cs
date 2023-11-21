@@ -11,11 +11,13 @@ namespace UniversityWebAPI.Controllers
     public class CountryController : Controller
     {
         private readonly ICountryRepository _countryRepository;
+        private readonly IUniversityRepository _universityRepository;
         private readonly IMapper _mapper;
 
-        public CountryController(ICountryRepository countryRepository, IMapper mapper)
+        public CountryController(ICountryRepository countryRepository, IUniversityRepository universityRepository, IMapper mapper)
         {
             _countryRepository = countryRepository;
+            _universityRepository = universityRepository;
             _mapper = mapper;
         }
 
@@ -50,33 +52,6 @@ namespace UniversityWebAPI.Controllers
             return Ok(country);
         }
 
-        [HttpPut("{countryId}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public IActionResult UpdateCountry(int countryId, [FromBody] CountryCreateDto updatedCountry)
-        {
-            if (updatedCountry == null)
-                return BadRequest(ModelState);
-
-            if (!_countryRepository.CountryExists(countryId))
-                return NotFound();
-
-            var country = _countryRepository.GetCountry(countryId);
-            country.Name = updatedCountry.Name;
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_countryRepository.UpdateCountry(country))
-            {
-                ModelState.AddModelError("", "Something went wrong while updating country");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok("Successfully updated");
-        }
-
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -109,6 +84,33 @@ namespace UniversityWebAPI.Controllers
             return Ok("Successfully created");
         }
 
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCountry(int countryId, [FromBody] CountryCreateDto updatedCountry)
+        {
+            if (updatedCountry == null)
+                return BadRequest(ModelState);
+
+            if (!_countryRepository.CountryExists(countryId))
+                return NotFound();
+
+            var country = _countryRepository.GetCountry(countryId);
+            country.Name = updatedCountry.Name;
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_countryRepository.UpdateCountry(country))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating country");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
+        }
+
         [HttpDelete("{countryId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
@@ -118,10 +120,17 @@ namespace UniversityWebAPI.Controllers
             if (!_countryRepository.CountryExists(countryId))
                 return NotFound();
 
+            var universitiesToDelete = _countryRepository.GetUniversitiesByCountryId(countryId);
             var countryToDelete = _countryRepository.GetCountry(countryId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!_universityRepository.DeleteUniversities(universitiesToDelete.ToList()))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting universities");
+                return StatusCode(500, ModelState);
+            }
 
             if (!_countryRepository.DeleteCountry(countryToDelete))
             {

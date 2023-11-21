@@ -11,6 +11,7 @@ namespace UniversityWebAPI.Interfaces
         bool CreateUniversity(University university);
         bool UpdateUniversity(University university);
         bool DeleteUniversity(University university);
+        bool DeleteUniversities(List<University> universities);
         bool Save();
     }
 }
