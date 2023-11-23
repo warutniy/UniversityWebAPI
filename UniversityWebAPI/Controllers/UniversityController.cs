@@ -22,45 +22,48 @@ namespace UniversityWebAPI.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UniversityDto>))]
         [ProducesResponseType(400)]
-        public IActionResult GetUniversities()
+        public async Task<IActionResult> GetUniversities()
         {
-            var universities = _mapper.Map<List<UniversityDto>>(_universityRepository.GetUniversities());
+            var universities = await _universityRepository.GetUniversities();
+            var universitiesMap = _mapper.Map<List<UniversityDto>>(universities);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(universities);
+            return Ok(universitiesMap);
         }
-
+        
         [HttpGet("{universityId}")]
         [ProducesResponseType(200, Type = typeof(UniversityWithStudentsDto))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetUniversity(int universityId)
+        public async Task<IActionResult> GetUniversity(int universityId)
         {
-            if (!_universityRepository.UniversityExists(universityId))
+            var universityExists = await _universityRepository.UniversityExists(universityId);
+            if (!universityExists)
                 return NotFound();
 
-            var university = _mapper.Map<UniversityWithStudentsDto>(_universityRepository.GetUniversity(universityId));
-            university.Students = _mapper.Map<List<StudentsByUniversityDto>>(_universityRepository.GetStudentsByUniversityId(universityId));
+            var university = await _universityRepository.GetUniversity(universityId);
+            var students = await _universityRepository.GetStudentsByUniversityId(universityId);
+            var universityMap = _mapper.Map<UniversityWithStudentsDto>(university);
+            universityMap.Students = _mapper.Map<List<StudentsByUniversityDto>>(students);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(university);
+            return Ok(universityMap);
         }
-
+        
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult CreateUniversity([FromBody] UniversityCreateDto universityCreate)
+        public async Task<IActionResult> CreateUniversity([FromBody] UniversityCreateDto universityCreate)
         {
             if (universityCreate == null || universityCreate.CountryId <= 0)
                 return BadRequest(ModelState);
 
-            var university = _universityRepository.GetUniversities()
-                .Where(u => u.Name.Trim().ToUpper() == universityCreate.Name.Trim().ToUpper())
-                .FirstOrDefault();
+            var universities = await _universityRepository.GetUniversities();
+            var university = universities.Where(u => u.Name.Trim().ToUpper() == universityCreate.Name.Trim().ToUpper()).FirstOrDefault();
 
             if (university != null)
             {
@@ -73,7 +76,8 @@ namespace UniversityWebAPI.Controllers
 
             var universityMap = _mapper.Map<University>(universityCreate);
 
-            if (!_universityRepository.CreateUniversity(universityMap))
+            var addUniversityMap = await _universityRepository.CreateUniversity(universityMap);
+            if (!addUniversityMap)
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -81,27 +85,29 @@ namespace UniversityWebAPI.Controllers
 
             return Ok("Successfully created");
         }
-
+        
         [HttpPut("{universityId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateUniversity(int universityId, [FromBody] UniversityCreateDto updatedUniversity)
+        public async Task<IActionResult> UpdateUniversity(int universityId, [FromBody] UniversityCreateDto updatedUniversity)
         {
             if (updatedUniversity == null || updatedUniversity.CountryId <= 0)
                 return BadRequest(ModelState);
 
-            if (!_universityRepository.UniversityExists(universityId))
+            var universityExists = await _universityRepository.UniversityExists(universityId);
+            if (!universityExists)
                 return NotFound();
 
-            var university = _universityRepository.GetUniversity(universityId);
+            var university = await _universityRepository.GetUniversity(universityId);
             university.Name = updatedUniversity.Name;
             university.CountryId = updatedUniversity.CountryId;
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_universityRepository.UpdateUniversity(university))
+            var universityUpdate = await _universityRepository.UpdateUniversity(university);
+            if (!universityUpdate)
             {
                 ModelState.AddModelError("", "Something went wrong while updating university");
                 return StatusCode(500, ModelState);
@@ -109,22 +115,24 @@ namespace UniversityWebAPI.Controllers
 
             return Ok("Successfully updated");
         }
-
+        
         [HttpDelete("{universityId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteUniversity(int universityId)
+        public async Task<IActionResult> DeleteUniversity(int universityId)
         {
-            if (!_universityRepository.UniversityExists(universityId))
+            var universityExists = await _universityRepository.UniversityExists(universityId);
+            if (!universityExists)
                 return NotFound();
 
-            var universityToDelete = _universityRepository.GetUniversity(universityId);
+            var universityToDelete = await _universityRepository.GetUniversity(universityId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_universityRepository.DeleteUniversity(universityToDelete))
+            var universityRemove = await _universityRepository.DeleteUniversity(universityToDelete);
+            if (!universityRemove)
             {
                 ModelState.AddModelError("", "Something went wrong while deleting university");
                 return StatusCode(500, ModelState);

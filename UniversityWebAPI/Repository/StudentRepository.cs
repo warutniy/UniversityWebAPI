@@ -14,54 +14,54 @@ namespace UniversityWebAPI.Repository
             _context = context;
         }
 
-        public bool CreateStudent(Student student)
+        public async Task<bool> CreateStudent(Student student)
         {
             _context.Students.Add(student);
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteStudent(Student student)
+        public async Task<bool> DeleteStudent(Student student)
         {
             _context.Students.Remove(student);
-            return Save();
+            return await Save();
         }
 
-        public Student GetStudent(int studentId)
+        public async Task<Student> GetStudent(int studentId)
         {
-            return _context.Students.Where(s => s.Id == studentId).Include(su => su.StudentUniversities)
-                .ThenInclude(u => u.University).FirstOrDefault();
+            return await _context.Students.Where(s => s.Id == studentId).Include(su => su.StudentUniversities)
+                .ThenInclude(u => u.University).FirstOrDefaultAsync();
         }
 
-        public ICollection<Student> GetStudents()
+        public async Task<ICollection<Student>> GetStudents()
         {
-            return _context.Students.ToList();
+            return await _context.Students.ToListAsync();
         }
 
-        public ICollection<University> GetUniversitiesByStudentId(int studentId)
+        public async Task<ICollection<University>> GetUniversitiesByStudentId(int studentId)
         {
-            return _context.StudentUniversities.Where(su => su.StudentId == studentId).Select(su => new University
+            return await _context.StudentUniversities.Where(su => su.StudentId == studentId).Select(su => new University
             {
                 Id = su.University.Id,
                 Name = su.University.Name,
                 Country = su.University.Country,
-            }).ToList();
+            }).ToListAsync();
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool StudentExists(int studentId)
+        public async Task<bool> StudentExists(int studentId)
         {
-            return _context.Students.Any(s => s.Id == studentId);
+            return await _context.Students.AnyAsync(s => s.Id == studentId);
         }
 
-        public bool UpdateStudent(Student student)
+        public async Task<bool> UpdateStudent(Student student)
         {
             _context.Students.Update(student);
-            return Save();
+            return await Save();
         }
     }
 }

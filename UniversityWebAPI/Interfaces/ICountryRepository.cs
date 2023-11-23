@@ -4,13 +4,13 @@ namespace UniversityWebAPI.Interfaces
 {
     public interface ICountryRepository
     {
-        ICollection<Country> GetCountries();
-        Country GetCountry(int countryId);
-        ICollection<University> GetUniversitiesByCountryId(int countryId);
-        bool CountryExists(int countryId);
-        bool CreateCountry(Country country);
-        bool UpdateCountry(Country country);
-        bool DeleteCountry(Country country);
-        bool Save();
+        Task<ICollection<Country>> GetCountries();
+        Task<Country> GetCountry(int countryId);
+        Task<ICollection<University>> GetUniversitiesByCountryId(int countryId);
+        Task<bool> CountryExists(int countryId);
+        Task<bool> CreateCountry(Country country);
+        Task<bool> UpdateCountry(Country country);
+        Task<bool> DeleteCountry(Country country);
+        Task<bool> Save();
     }
 }

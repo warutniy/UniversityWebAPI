@@ -14,54 +14,54 @@ namespace UniversityWebAPI.Repository
             _context = context;
         }
 
-        public bool CreateUniversity(University university)
+        public async Task<bool> CreateUniversity(University university)
         {
             _context.Universities.Add(university);
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteUniversities(List<University> universities)
+        public async Task<bool> DeleteUniversities(List<University> universities)
         {
             _context.Universities.RemoveRange(universities);
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteUniversity(University university)
+        public async Task<bool> DeleteUniversity(University university)
         {
             _context.Universities.Remove(university);
-            return Save();
+            return await Save();
         }
 
-        public ICollection<Student> GetStudentsByUniversityId(int universityId)
+        public async Task<ICollection<Student>> GetStudentsByUniversityId(int universityId)
         {
-            return _context.StudentUniversities.Where(su => su.UniversityId == universityId).Select(s => s.Student).ToList();
+            return await _context.StudentUniversities.Where(su => su.UniversityId == universityId).Select(s => s.Student).ToListAsync();
         }
 
-        public ICollection<University> GetUniversities()
+        public async Task<ICollection<University>> GetUniversities()
         {
-            return _context.Universities.Include(u => u.Country).ToList();
+            return await _context.Universities.Include(u => u.Country).ToListAsync();
         }
 
-        public University GetUniversity(int universityId)
+        public async Task<University> GetUniversity(int universityId)
         {
-            return _context.Universities.Where(u => u.Id == universityId).Include(u => u.Country).FirstOrDefault();
+            return await _context.Universities.Where(u => u.Id == universityId).Include(u => u.Country).FirstOrDefaultAsync();
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UniversityExists(int universityId)
+        public async Task<bool> UniversityExists(int universityId)
         {
-            return _context.Universities.Any(u => u.Id == universityId);
+            return await _context.Universities.AnyAsync(u => u.Id == universityId);
         }
 
-        public bool UpdateUniversity(University university)
+        public async Task<bool> UpdateUniversity(University university)
         {
             _context.Universities.Update(university);
-            return Save();
+            return await Save();
         }
     }
 }

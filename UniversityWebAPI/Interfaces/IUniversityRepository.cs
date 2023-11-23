@@ -4,14 +4,14 @@ namespace UniversityWebAPI.Interfaces
 {
     public interface IUniversityRepository
     {
-        ICollection<University> GetUniversities();
-        University GetUniversity(int universityId);
-        ICollection<Student> GetStudentsByUniversityId(int universityId);
-        bool UniversityExists(int universityId);
-        bool CreateUniversity(University university);
-        bool UpdateUniversity(University university);
-        bool DeleteUniversity(University university);
-        bool DeleteUniversities(List<University> universities);
-        bool Save();
+        Task<ICollection<University>> GetUniversities();
+        Task<University> GetUniversity(int universityId);
+        Task<ICollection<Student>> GetStudentsByUniversityId(int universityId);
+        Task<bool> UniversityExists(int universityId);
+        Task<bool> CreateUniversity(University university);
+        Task<bool> UpdateUniversity(University university);
+        Task<bool> DeleteUniversity(University university);
+        Task<bool> DeleteUniversities(List<University> universities);
+        Task<bool> Save();
     }
 }
